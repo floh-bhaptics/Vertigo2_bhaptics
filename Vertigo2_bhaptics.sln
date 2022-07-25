@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32602.291
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vertigo2_bhaptics", "Vertigo2_bhaptics.csproj", "{FA9F5333-380E-493C-A7CA-6CF3FD1514EF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FA9F5333-380E-493C-A7CA-6CF3FD1514EF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FA9F5333-380E-493C-A7CA-6CF3FD1514EF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA9F5333-380E-493C-A7CA-6CF3FD1514EF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FA9F5333-380E-493C-A7CA-6CF3FD1514EF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {63D135AD-26FB-49CF-BD1F-BD6B89AC273E}
+	EndGlobalSection
+EndGlobal
