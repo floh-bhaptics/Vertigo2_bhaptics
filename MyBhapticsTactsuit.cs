@@ -121,19 +121,27 @@ namespace MyBhapticsTactsuit
             bHaptics.SubmitRegistered(key, key, scaleOption, rotationOption);
         }
 
-        public void GunRecoil(bool isRightHand, float intensity = 1.0f )
+        public void GunRecoil(bool isRightHand, float intensity = 1.0f, bool twoHanded = false )
         {
             float duration = 1.0f;
             var scaleOption = new bHaptics.ScaleOption(intensity, duration);
             var rotationFront = new bHaptics.RotationOption(0f, 0f);
             string postfix = "_L";
-            if (isRightHand) { postfix = "_R"; }
+            string otherPostfix = "_R";
+            if (isRightHand) { postfix = "_R"; otherPostfix = "_L"; }
             string keyArm = "Recoil" + postfix;
             string keyVest = "RecoilVest" + postfix;
             string keyHands = "RecoilHands" + postfix;
+            string keyArmOther = "Recoil" + otherPostfix;
+            string keyHandsOther = "RecoilHands" + otherPostfix;
             bHaptics.SubmitRegistered(keyHands, keyHands, scaleOption, rotationFront);
             bHaptics.SubmitRegistered(keyArm, keyArm, scaleOption, rotationFront);
             bHaptics.SubmitRegistered(keyVest, keyVest, scaleOption, rotationFront);
+            if (twoHanded)
+            {
+                bHaptics.SubmitRegistered(keyHandsOther, keyHandsOther, scaleOption, rotationFront);
+                bHaptics.SubmitRegistered(keyArmOther, keyArmOther, scaleOption, rotationFront);
+            }
         }
         public void SwordRecoil(bool isRightHand, float intensity = 1.0f)
         {
