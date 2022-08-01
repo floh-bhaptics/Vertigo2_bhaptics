@@ -23,7 +23,7 @@ using MelonLoader;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("fa9f5333-380e-493c-a7ca-6cf3fd1514ef")]
 
-[assembly: MelonInfo(typeof(Vertigo2_bhaptics.Vertigo2_bhaptics), "Vertigo2_bhaptics", "1.0.0", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(Vertigo2_bhaptics.Vertigo2_bhaptics), "Vertigo2_bhaptics", "1.1.0", "Florian Fahrenberger")]
 [assembly: MelonGame("Zulubo Productions", "vertigo2")]
 
 
@@ -37,5 +37,5 @@ using MelonLoader;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.0.0")]
-[assembly: AssemblyFileVersion("1.0.0")]
+[assembly: AssemblyVersion("1.1.0")]
+[assembly: AssemblyFileVersion("1.1.0")]
