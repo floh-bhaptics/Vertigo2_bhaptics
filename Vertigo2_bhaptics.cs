@@ -103,6 +103,17 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(Tailgun), "ShootHaptics", new Type[] { })]
+        public class bhaptics_TailgunFeedback
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Tailgun __instance)
+            {
+                if (__instance.handle_L.isBeingHeld) tactsuitVr.GunRecoil(false);
+                if (__instance.handle_R.isBeingHeld) tactsuitVr.GunRecoil(true);
+            }
+        }
+
         [HarmonyPatch(typeof(VertigoPlayer), "Hit", new Type[] { typeof(HitInfo), typeof(bool) })]
         public class bhaptics_PlayerHit
         {
@@ -118,19 +129,9 @@ namespace Vertigo2_bhaptics
                     tactsuitVr.PlaybackHaptics("FlameThrower");
                     return;
                 }
-                if ((hit.damageType & DamageType.Explosion) == DamageType.Explosion)
-                {
-                    tactsuitVr.PlaybackHaptics("ExplosionFace");
-                    return;
-                }
                 if ((hit.damageType & DamageType.Poison) == DamageType.Poison)
                 {
                     tactsuitVr.PlaybackHaptics("Poison");
-                    return;
-                }
-                if ((hit.damageType & DamageType.Grenade) == DamageType.Grenade)
-                {
-                    tactsuitVr.PlaybackHaptics("ExplosionFace");
                     return;
                 }
                 if ((hit.damageType & DamageType.Electricity) == DamageType.Electricity)
@@ -146,6 +147,20 @@ namespace Vertigo2_bhaptics
                 if ((hit.damageType & DamageType.Radiation) == DamageType.Radiation)
                 {
                     if (!tactsuitVr.IsPlaying("Radiation")) { tactsuitVr.PlaybackHaptics("Radiation"); }
+                    return;
+                }
+                if ((hit.damageType & DamageType.Grenade) == DamageType.Grenade)
+                {
+                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
+                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
+                    tactsuitVr.PlayBackHit("ExplosionFace", hitAngle, hitShift);
+                    return;
+                }
+                if ((hit.damageType & DamageType.Explosion) == DamageType.Explosion)
+                {
+                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
+                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
+                    tactsuitVr.PlayBackHit("ExplosionFace", hitAngle, hitShift);
                     return;
                 }
                 if ((hit.damageType & DamageType.Bullet) == DamageType.Bullet)
@@ -271,34 +286,23 @@ namespace Vertigo2_bhaptics
 
         #region Special events
 
-        [HarmonyPatch(typeof(PlanckBoat), "Explode", new Type[] { })]
-        public class bhaptics_BoatExplode
+        [HarmonyPatch(typeof(CopterAirChase), "MissileHitCopter", new Type[] { })]
+        public class bhaptics_MissileHitCopter
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("ExplosionFace");
+            }
+        }
+
+        [HarmonyPatch(typeof(CopterAirChase), "Crash", new Type[] { })]
+        public class bhaptics_CopterCrash
         {
             [HarmonyPostfix]
             public static void Postfix()
             {
                 tactsuitVr.PlaybackHaptics("ExplosionUp");
-            }
-        }
-
-        [HarmonyPatch(typeof(PlanckBoat), "Hit", new Type[] { typeof(HitInfo), typeof(bool) })]
-        public class bhaptics_BoatHit
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.PlaybackHaptics("ExplosionFace", 0.5f);
-            }
-        }
-
-        [HarmonyPatch(typeof(PlanckBoat), "TurretShoot", new Type[] { })]
-        public class bhaptics_BoatTurretShoot
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.GunRecoil(true);
-                tactsuitVr.GunRecoil(false);
             }
         }
 
@@ -312,82 +316,16 @@ namespace Vertigo2_bhaptics
             [HarmonyPostfix]
             public static void Postfix(Explosion __instance)
             {
+                //tactsuitVr.LOG("Explosion: " + __instance.maxDamage.ToString());
+                if (__instance.maxDamage == 0.0f) return;
                 float distance = (__instance.transform.position - Vertigo2.AI.AIManager.world.player.position).magnitude;
-                float max_dist = 120.0f;
+                float max_dist = 150.0f;
                 if (distance > max_dist) return;
                 float intensity = ((max_dist - distance)/max_dist) * ((max_dist - distance) / max_dist);
-                tactsuitVr.LOG("ExplosionExplode, distance: " + distance.ToString() + " intensity: " + intensity.ToString());
                 if (intensity > 0.0f) tactsuitVr.PlaybackHaptics("ExplosionUp", intensity);
             }
         }
 
-        /*
-        [HarmonyPatch(typeof(StickyBomb), "Explode", new Type[] { })]
-        public class bhaptics_StickyBombExplode
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.LOG("StickyBombExplode");
-                tactsuitVr.PlaybackHaptics("ExplosionUp");
-            }
-        }
-
-        [HarmonyPatch(typeof(Grenade), "Explode", new Type[] { })]
-        public class bhaptics_GrenadeExplode
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.LOG("WeaponGrenadeExplode");
-                tactsuitVr.PlaybackHaptics("ExplosionUp");
-            }
-        }
-
-        [HarmonyPatch(typeof(EnemyGrenade), "Explode", new Type[] { })]
-        public class bhaptics_EnemyGrenadeExplode
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.LOG("EnemyGrenadeExplode");
-                tactsuitVr.PlaybackHaptics("ExplosionUp");
-            }
-        }
-
-        [HarmonyPatch(typeof(GunshipMissile), "Explode", new Type[] { })]
-        public class bhaptics_GunshipMissileExplode
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.LOG("GunshipMissileExplode");
-                tactsuitVr.PlaybackHaptics("ExplosionUp");
-            }
-        }
-
-        [HarmonyPatch(typeof(Missile), "Explode", new Type[] { })]
-        public class bhaptics_MissileExplode
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.LOG("MissileExplode");
-                tactsuitVr.PlaybackHaptics("ExplosionUp", 0.25f);
-            }
-        }
-
-        [HarmonyPatch(typeof(NavalMine), "Explode", new Type[] { })]
-        public class bhaptics_NavalMineExplode
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.LOG("NavalMineExplode");
-                tactsuitVr.PlaybackHaptics("ExplosionUp");
-            }
-        }
-        */
         #endregion
 
     }
