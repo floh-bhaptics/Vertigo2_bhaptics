@@ -30,6 +30,73 @@ namespace Vertigo2_bhaptics
             tactsuitVr.PlaybackHaptics("HeartBeat");
         }
 
+
+        #region Heartbeat
+
+        [HarmonyPatch(typeof(DeathScreen), "Start")]
+        public class bhaptics_DeathScreenStart
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.StopThreads();
+            }
+        }
+
+        [HarmonyPatch(typeof(VertigoPlayer), "Die", new Type[] { typeof(HitInfo), typeof(bool) })]
+        public class bhaptics_PlayerDies
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.StopThreads();
+            }
+        }
+
+        [HarmonyPatch(typeof(VertigoPlayer), "EntityUpdate")]
+        public class bhaptics_EntityAddHealth
+        {
+            [HarmonyPostfix]
+            public static void Postfix(VertigoEntity __instance)
+            {
+                //tactsuitVr.StopHeartBeat();
+                if (__instance.health > 0.3 * __instance.maxHealth) { tactsuitVr.StopHeartBeat(); }
+            }
+        }
+
+        #endregion
+
+        #region Shooting
+
+        [HarmonyPatch(typeof(Gun), "ShootHaptics")]
+        public class bhaptics_GunFeedback
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Gun __instance, float length, float power)
+            {
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                bool twoHanded = (__instance.heldEquippable.otherHandHolding);
+
+                float intensity = Math.Max(power * 2.0f, 1.2f);
+                tactsuitVr.GunRecoil(isRightHand, intensity, twoHanded);
+            }
+        }
+
+        [HarmonyPatch(typeof(Tailgun), "ShootHaptics", new Type[] { })]
+        public class bhaptics_TailgunFeedback
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Tailgun __instance)
+            {
+                if (__instance.handle_L.isBeingHeld) tactsuitVr.GunRecoil(false);
+                if (__instance.handle_R.isBeingHeld) tactsuitVr.GunRecoil(true);
+            }
+        }
+
+        #endregion
+
+        #region Damage
+
         private static (float, float) getAngleAndShift(VertigoPlayer player, HitInfo hit)
         {
             Vector3 patternOrigin = new Vector3(0f, 0f, 1f);
@@ -65,53 +132,6 @@ namespace Vertigo2_bhaptics
             //tactsuitVr.LOG("HitAngle: " + hitAngle.ToString());
             //tactsuitVr.LOG("HitShift: " + hitShift.ToString());
             return (myRotation, hitShift);
-        }
-
-        
-        [HarmonyPatch(typeof(VertigoPlayer), "Die", new Type[] { typeof(HitInfo), typeof(bool) })]
-        public class bhaptics_PlayerDies
-        {
-            [HarmonyPostfix]
-            public static void Postfix()
-            {
-                tactsuitVr.StopThreads();
-            }
-        }
-
-        [HarmonyPatch(typeof(VertigoPlayer), "EntityUpdate")]
-        public class bhaptics_EntityAddHealth
-        {
-            [HarmonyPostfix]
-            public static void Postfix(VertigoEntity __instance)
-            {
-                //tactsuitVr.StopHeartBeat();
-                if (__instance.health > 0.3 * __instance.maxHealth) { tactsuitVr.StopHeartBeat(); }
-            }
-        }
-
-        [HarmonyPatch(typeof(Gun), "ShootHaptics")]
-        public class bhaptics_GunFeedback
-        {
-            [HarmonyPostfix]
-            public static void Postfix(Gun __instance, float length, float power)
-            {
-                bool isRightHand = (((int)__instance.inputSource) == rightHand);
-                bool twoHanded = (__instance.heldEquippable.otherHandHolding);
-
-                float intensity = Math.Max(power * 2.0f, 1.2f);
-                tactsuitVr.GunRecoil(isRightHand, intensity, twoHanded);
-            }
-        }
-
-        [HarmonyPatch(typeof(Tailgun), "ShootHaptics", new Type[] { })]
-        public class bhaptics_TailgunFeedback
-        {
-            [HarmonyPostfix]
-            public static void Postfix(Tailgun __instance)
-            {
-                if (__instance.handle_L.isBeingHeld) tactsuitVr.GunRecoil(false);
-                if (__instance.handle_R.isBeingHeld) tactsuitVr.GunRecoil(true);
-            }
         }
 
         [HarmonyPatch(typeof(VertigoPlayer), "Hit", new Type[] { typeof(HitInfo), typeof(bool) })]
@@ -246,6 +266,10 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        #endregion
+
+        #region Movement
+
         [HarmonyPatch(typeof(PlayerFootstepFX), "Step")]
         public class bhaptics_Footstep
         {
@@ -274,15 +298,17 @@ namespace Vertigo2_bhaptics
             }
         }
 
-        [HarmonyPatch(typeof(DeathScreen), "Start")]
-        public class bhaptics_DeathScreenStart
+        [HarmonyPatch(typeof(VertigoCharacterController), "DoTeleportAnim", new Type[] { typeof(Vector3), typeof(Vector3), typeof(TeleportSurface) })]
+        public class bhaptics_Teleport
         {
             [HarmonyPostfix]
             public static void Postfix()
             {
-                tactsuitVr.StopThreads();
+                tactsuitVr.PlaybackHaptics("Teleport");
             }
         }
+
+        #endregion
 
         #region Special events
 
@@ -318,6 +344,7 @@ namespace Vertigo2_bhaptics
             {
                 //tactsuitVr.LOG("Explosion: " + __instance.maxDamage.ToString());
                 if (__instance.maxDamage == 0.0f) return;
+                if (tactsuitVr.IsPlaying("ExplosionUp")) return;
                 float distance = (__instance.transform.position - Vertigo2.AI.AIManager.world.player.position).magnitude;
                 float max_dist = 150.0f;
                 if (distance > max_dist) return;
