@@ -88,8 +88,8 @@ namespace Vertigo2_bhaptics
             [HarmonyPostfix]
             public static void Postfix(Tailgun __instance)
             {
-                if (__instance.handle_L.isBeingHeld) tactsuitVr.GunRecoil(false);
-                if (__instance.handle_R.isBeingHeld) tactsuitVr.GunRecoil(true);
+                if (__instance.handle_L.isBeingHeld) tactsuitVr.GunRecoil(false, 0.7f);
+                if (__instance.handle_R.isBeingHeld) tactsuitVr.GunRecoil(true, 0.7f);
             }
         }
 
@@ -109,28 +109,15 @@ namespace Vertigo2_bhaptics
             float earlyhitAngle = Vector3.Angle(flattenedHit, patternOrigin);
             Vector3 earlycrossProduct = Vector3.Cross(flattenedHit, patternOrigin);
             if (earlycrossProduct.y > 0f) { earlyhitAngle *= -1f; }
-            //tactsuitVr.LOG("EarlyHitAngle: " + earlyhitAngle.ToString());
             float myRotation = earlyhitAngle - playerDir.y;
             myRotation *= -1f;
             if (myRotation < 0f) { myRotation = 360f + myRotation; }
 
-            /*
-            Vector3 relativeHitDir = Quaternion.Euler(playerDir) * hitPosition;
-            Vector2 xzHitDir = new Vector2(relativeHitDir.x, relativeHitDir.z);
-            //Vector2 patternOrigin = new Vector2(0f, 1f);
-            float hitAngle = Vector2.SignedAngle(xzHitDir, patternOrigin);
-            hitAngle *= -1;
-            //hitAngle += 90f;
-            if (hitAngle < 0f) { hitAngle = 360f + hitAngle; }
-            */
             float hitShift = hitPosition.y;
             if (hitShift > 0.0f) { hitShift = 0.5f; }
             else if (hitShift < -0.5f) { hitShift = -0.5f; }
             else { hitShift = (hitShift + 0.25f) * 2.0f; }
 
-            //tactsuitVr.LOG("Relative x-z-position: " + relativeHitDir.x.ToString() + " "  + relativeHitDir.z.ToString());
-            //tactsuitVr.LOG("HitAngle: " + hitAngle.ToString());
-            //tactsuitVr.LOG("HitShift: " + hitShift.ToString());
             return (myRotation, hitShift);
         }
 
@@ -140,10 +127,10 @@ namespace Vertigo2_bhaptics
             [HarmonyPostfix]
             public static void Postfix(VertigoPlayer __instance, HitInfo hit, bool crit)
             {
-                float hitAngle;
-                float hitShift;
+                // Start heart beat if low on health
                 if (__instance.health < 0.3f * __instance.maxHealth) { tactsuitVr.StartHeartBeat(); }
-                if (crit) { tactsuitVr.LOG("Critical hit!"); }
+                // if (crit) { tactsuitVr.LOG("Critical hit!"); }
+                // Non-directional environmental feedback
                 if ((hit.damageType & DamageType.Fire) == DamageType.Fire)
                 {
                     tactsuitVr.PlaybackHaptics("FlameThrower");
@@ -169,100 +156,51 @@ namespace Vertigo2_bhaptics
                     if (!tactsuitVr.IsPlaying("Radiation")) { tactsuitVr.PlaybackHaptics("Radiation"); }
                     return;
                 }
-                if ((hit.damageType & DamageType.Grenade) == DamageType.Grenade)
+                // Directional feedback
+                float hitAngle;
+                float hitShift;
+                string damageType = "Impact";
+                switch (hit.damageType)
                 {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("ExplosionFace", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Explosion) == DamageType.Explosion)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("ExplosionFace", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Bullet) == DamageType.Bullet)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("BulletHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Laser) == DamageType.Laser)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("BulletHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Impact) == DamageType.Impact)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("Impact", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Blade) == DamageType.Blade)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("BladeHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Bite) == DamageType.Bite)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("BulletHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Plasma) == DamageType.Plasma)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("BulletHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Heat) == DamageType.Heat)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("LavaballHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Cold) == DamageType.Cold)
-                {
-                    (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
-                    if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                    tactsuitVr.PlayBackHit("FreezeHit", hitAngle, hitShift);
-                    return;
-                }
-                if ((hit.damageType & DamageType.Gordle_Blue) == DamageType.Gordle_Blue)
-                {
-                    tactsuitVr.LOG("Gordle_Blue hitPoint: " + hit.hitPoint.x.ToString() + " " + hit.hitPoint.y.ToString() + " " + hit.hitPoint.z.ToString());
-                }
-                if ((hit.damageType & DamageType.Generic) == DamageType.Generic)
-                {
-                    tactsuitVr.LOG("Generic hitPoint: " + hit.hitPoint.x.ToString() + " " + hit.hitPoint.y.ToString() + " " + hit.hitPoint.z.ToString());
-                }
-                if ((hit.damageType & DamageType.Antimatter) == DamageType.Antimatter)
-                {
-                    tactsuitVr.LOG("Antimatter hitPoint: " + hit.hitPoint.x.ToString() + " " + hit.hitPoint.y.ToString() + " " + hit.hitPoint.z.ToString());
-                }
-                if ((hit.damageType & DamageType.Relativistic) == DamageType.Relativistic)
-                {
-                    tactsuitVr.LOG("Relativistic hitPoint: " + hit.hitPoint.x.ToString() + " " + hit.hitPoint.y.ToString() + " " + hit.hitPoint.z.ToString());
-                }
-                if ((hit.damageType & DamageType.Gordle_Orange) == DamageType.Gordle_Orange)
-                {
-                    tactsuitVr.LOG("Gordle_Orange hitPoint: " + hit.hitPoint.x.ToString() + " " + hit.hitPoint.y.ToString() + " " + hit.hitPoint.z.ToString());
+                    case DamageType.Grenade:
+                        damageType = "ExplosionFace";
+                        break;
+                    case DamageType.Explosion:
+                        damageType = "ExplosionFace";
+                        break;
+                    case DamageType.Bullet:
+                        damageType = "BulletHit";
+                        break;
+                    case DamageType.Laser:
+                        damageType = "BulletHit";
+                        break;
+                    case DamageType.Impact:
+                        damageType = "Impact";
+                        break;
+                    case DamageType.Blade:
+                        damageType = "BladeHit";
+                        break;
+                    case DamageType.Bite:
+                        damageType = "BulletHit";
+                        break;
+                    case DamageType.Plasma:
+                        damageType = "BulletHit";
+                        break;
+                    case DamageType.Heat:
+                        damageType = "LavaballHit";
+                        break;
+                    case DamageType.Cold:
+                        damageType = "FreezeHit";
+                        break;
+                    default:
+                        damageType = "Impact";
+                        tactsuitVr.LOG("New damageType in hit: " + hit.damageType.ToString());
+                        break;
                 }
                 // Default hit if not registered yet
                 (hitAngle, hitShift) = getAngleAndShift(__instance, hit);
                 if (hitShift >= 0.5f) { tactsuitVr.HeadShot(hitAngle); return; }
-                tactsuitVr.PlayBackHit("Impact", hitAngle, hitShift);
+                tactsuitVr.PlayBackHit(damageType, hitAngle, hitShift);
             }
         }
 
