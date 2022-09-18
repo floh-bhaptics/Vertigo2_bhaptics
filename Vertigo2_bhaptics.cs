@@ -179,11 +179,13 @@ namespace Vertigo2_bhaptics
                     tactsuitVr.PlaybackHaptics("Poison");
                     return;
                 }
+                /*
                 if ((hit.damageType & DamageType.Electricity) == DamageType.Electricity)
                 {
                     tactsuitVr.PlaybackHaptics("Electrocution");
                     return;
                 }
+                */
                 if ((hit.damageType & DamageType.Drowning) == DamageType.Drowning)
                 {
                     if (!tactsuitVr.IsPlaying("Smoking")) { tactsuitVr.PlaybackHaptics("Smoking"); }
@@ -229,6 +231,9 @@ namespace Vertigo2_bhaptics
                         break;
                     case DamageType.Cold:
                         damageType = "FreezeHit";
+                        break;
+                    case DamageType.Electricity:
+                        damageType = "ElectricHit";
                         break;
                     default:
                         damageType = "Impact";
