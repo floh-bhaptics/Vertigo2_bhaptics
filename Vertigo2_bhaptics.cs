@@ -66,7 +66,7 @@ namespace Vertigo2_bhaptics
 
         #endregion
 
-        #region Shooting
+        #region Weapons
 
         [HarmonyPatch(typeof(Gun), "ShootHaptics")]
         public class bhaptics_GunFeedback
