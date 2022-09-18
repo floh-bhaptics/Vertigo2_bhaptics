@@ -106,6 +106,31 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(Blafaladaciousnesticles), "OnImpact", new Type[] { typeof(Collider), typeof(Vector3), typeof(Vector3), typeof(Vector3), typeof(float) })]
+        public class bhaptics_SwordFeedback
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Blafaladaciousnesticles __instance, float normalizedSpeed)
+            {
+                if (normalizedSpeed <= 0.0) return;
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                float intensity = normalizedSpeed;
+                tactsuitVr.SwordRecoil(isRightHand, intensity);
+            }
+        }
+
+        [HarmonyPatch(typeof(Blafaladaciousnesticles), "Deflect", new Type[] { typeof(Vector3), typeof(Vector3) })]
+        public class bhaptics_SwordDeflect
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Blafaladaciousnesticles __instance)
+            {
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                float intensity = 1.0f;
+                tactsuitVr.SwordRecoil(isRightHand, intensity);
+            }
+        }
+
         #endregion
 
         #region Damage
