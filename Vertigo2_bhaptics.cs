@@ -93,6 +93,19 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(Enlighten), "Haptics", new Type[] { typeof(float), typeof(float), typeof(float), typeof(float)})]
+        public class bhaptics_EnlightenFeedback
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Enlighten __instance)
+            {
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                bool twoHanded = (__instance.heldEquippable.otherHandHolding);
+                float intensity = 0.6f;
+                tactsuitVr.GunRecoil(isRightHand, intensity, twoHanded);
+            }
+        }
+
         #endregion
 
         #region Damage

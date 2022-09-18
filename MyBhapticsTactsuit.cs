@@ -143,6 +143,26 @@ namespace MyBhapticsTactsuit
                 bHaptics.SubmitRegistered(keyArmOther, keyArmOther, scaleOption, rotationFront);
             }
         }
+
+        public void EnlightenRecoil(bool isRightHand, float intensity = 1.0f, bool twoHanded = false)
+        {
+            float duration = 1.0f;
+            var scaleOption = new bHaptics.ScaleOption(intensity, duration);
+            var rotationFront = new bHaptics.RotationOption(0f, 0f);
+            string postfix = "_L";
+            string otherPostfix = "_R";
+            if (isRightHand) { postfix = "_R"; otherPostfix = "_L"; }
+            string keyArm = "EnlightenGunArm" + postfix;
+            string keyVest = "EnlightenGunVest" + postfix;
+            string keyArmOther = "EnlightenGunArm" + otherPostfix;
+            bHaptics.SubmitRegistered(keyArm, keyArm, scaleOption, rotationFront);
+            bHaptics.SubmitRegistered(keyVest, keyVest, scaleOption, rotationFront);
+            if (twoHanded)
+            {
+                bHaptics.SubmitRegistered(keyArmOther, keyArmOther, scaleOption, rotationFront);
+            }
+        }
+
         public void SwordRecoil(bool isRightHand, float intensity = 1.0f)
         {
             float duration = 1.0f;
