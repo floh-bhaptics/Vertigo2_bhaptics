@@ -76,8 +76,13 @@ namespace Vertigo2_bhaptics
             {
                 bool isRightHand = (((int)__instance.inputSource) == rightHand);
                 bool twoHanded = (__instance.heldEquippable.otherHandHolding);
-
                 float intensity = Math.Max(power * 2.0f, 1.2f);
+
+                if (__instance.name == "MeatNailer")
+                {
+                    tactsuitVr.MeatNailerRecoil(isRightHand, 1.0f, twoHanded);
+                }
+
                 tactsuitVr.GunRecoil(isRightHand, intensity, twoHanded);
             }
         }
