@@ -81,9 +81,22 @@ namespace Vertigo2_bhaptics
                 if (__instance.name == "MeatNailer")
                 {
                     tactsuitVr.MeatNailerRecoil(isRightHand, 1.0f, twoHanded);
+                    return;
                 }
 
                 tactsuitVr.GunRecoil(isRightHand, intensity, twoHanded);
+            }
+        }
+
+        [HarmonyPatch(typeof(QuadBow), "ReleaseString", new Type[] { typeof(VertigoHand) })]
+        public class bhaptics_BowFeedback
+        {
+            [HarmonyPostfix]
+            public static void Postfix(QuadBow __instance, VertigoHand hand)
+            {
+                bool isRightHand = (((int)hand.inputSource) == rightHand);
+                if (isRightHand) tactsuitVr.PlaybackHaptics("BowRelease_R");
+                else tactsuitVr.PlaybackHaptics("BowRelease_L");
             }
         }
 
