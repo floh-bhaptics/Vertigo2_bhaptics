@@ -313,7 +313,7 @@ namespace Vertigo2_bhaptics
             [HarmonyPostfix]
             public static void Postfix()
             {
-                tactsuitVr.PlaybackHaptics("FallDamage");
+                tactsuitVr.PlaybackHaptics("LaunchLily");
             }
         }
 
@@ -323,7 +323,7 @@ namespace Vertigo2_bhaptics
             [HarmonyPostfix]
             public static void Postfix()
             {
-                tactsuitVr.PlaybackHaptics("FallDamage");
+                tactsuitVr.PlaybackHaptics("LaunchLily");
             }
         }
 
