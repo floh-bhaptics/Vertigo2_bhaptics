@@ -307,6 +307,26 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(LaunchLily), "Jump", new Type[] { typeof(VertigoPlayer) })]
+        public class bhaptics_LaunchLily
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("FallDamage");
+            }
+        }
+
+        [HarmonyPatch(typeof(JumpPad), "Jump", new Type[] { typeof(VertigoPlayer) })]
+        public class bhaptics_JumpPad
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("FallDamage");
+            }
+        }
+
         #endregion
 
         #region Special events
@@ -342,7 +362,7 @@ namespace Vertigo2_bhaptics
             public static void Postfix(Explosion __instance)
             {
                 //tactsuitVr.LOG("Explosion: " + __instance.maxDamage.ToString());
-                if (__instance.maxDamage == 0.0f) return;
+                if ((__instance.maxDamage == 0.0f) && (!__instance.applyScreenShake)) return;
                 if (tactsuitVr.IsPlaying("ExplosionUp")) return;
                 float distance = (__instance.transform.position - Vertigo2.AI.AIManager.world.player.position).magnitude;
                 float max_dist = 150.0f;
