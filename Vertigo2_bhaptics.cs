@@ -351,6 +351,46 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(Cyberjoseph), "BigStompNoDamage", new Type[] { })]
+        public class bhaptics_BigStompNoDamage
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("ExplosionUp");
+            }
+        }
+
+        [HarmonyPatch(typeof(Cyberjoseph), "BothFeetStomp", new Type[] { })]
+        public class bhaptics_BothFeetStomp
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("ExplosionUp");
+            }
+        }
+
+        [HarmonyPatch(typeof(Cyberjoseph), "FaceSlamNoDamage", new Type[] { })]
+        public class bhaptics_FaceSlamNoDamage
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("ExplosionUp", 0.8f);
+            }
+        }
+
+        [HarmonyPatch(typeof(Cyberjoseph), "SuperSlam", new Type[] { })]
+        public class bhaptics_SuperSlam
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("ExplosionUp");
+            }
+        }
+
         #endregion
 
         #region Explosions
