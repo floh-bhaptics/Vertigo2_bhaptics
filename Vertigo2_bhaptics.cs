@@ -23,9 +23,8 @@ namespace Vertigo2_bhaptics
         private static int rightHand = ((int)SteamVR_Input_Sources.RightHand);
         private static bool rightFootLast = true;
 
-        public override void OnApplicationStart()
+        public override void OnInitializeMelon()
         {
-            base.OnApplicationStart();
             tactsuitVr = new TactsuitVR();
             tactsuitVr.PlaybackHaptics("HeartBeat");
         }
@@ -61,6 +60,40 @@ namespace Vertigo2_bhaptics
             {
                 //tactsuitVr.StopHeartBeat();
                 if (__instance.health > 0.3 * __instance.maxHealth) { tactsuitVr.StopHeartBeat(); }
+            }
+        }
+
+        #endregion
+
+        #region Healing
+
+        [HarmonyPatch(typeof(NanitePen), "Inject", new Type[] { })]
+        public class bhaptics_InjectNanitePen
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("Healing");
+            }
+        }
+
+        [HarmonyPatch(typeof(HealthStation), "Inject", new Type[] { })]
+        public class bhaptics_InjectHealthStation
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("Healing");
+            }
+        }
+
+        [HarmonyPatch(typeof(HealthFruit), "Bite", new Type[] { })]
+        public class bhaptics_HealthFruitBite
+        {
+            [HarmonyPostfix]
+            public static void Postfix()
+            {
+                tactsuitVr.PlaybackHaptics("Healing");
             }
         }
 
@@ -220,7 +253,7 @@ namespace Vertigo2_bhaptics
                 string damageType = "Impact";
                 switch (hit.damageType)
                 {
-                    case DamageType.Grenade:
+                    case DamageType.Enlightenment:
                         damageType = "ExplosionFace";
                         break;
                     case DamageType.Explosion:
@@ -252,6 +285,15 @@ namespace Vertigo2_bhaptics
                         break;
                     case DamageType.Electricity:
                         damageType = "ElectricHit";
+                        break;
+                    case DamageType.Antimatter:
+                        damageType = "Impact";
+                        break;
+                    case DamageType.Hyperdimensional:
+                        damageType = "Impact";
+                        break;
+                    case DamageType.Generic:
+                        damageType = "Impact";
                         break;
                     default:
                         damageType = "Impact";
