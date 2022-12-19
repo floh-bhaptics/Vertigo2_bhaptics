@@ -41,6 +41,7 @@
     </Reference>
     <Reference Include="bHapticsLib">
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\bHapticsLib.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\MelonLoader.dll</HintPath>
