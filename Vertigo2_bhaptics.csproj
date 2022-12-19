@@ -39,13 +39,12 @@
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\vertigo2_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="bHapticsLib, Version=1.0.6.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>F:\SteamLibrary\steamapps\common\Barbaria\MelonLoader\net6\bHapticsLib.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="bHapticsLib">
+      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\bHapticsLib.dll</HintPath>
     </Reference>
     <Reference Include="MelonLoader">
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\MelonLoader.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SteamVR">
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\vertigo2_Data\Managed\SteamVR.dll</HintPath>
