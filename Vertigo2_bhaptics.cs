@@ -15,11 +15,14 @@ using Vertigo2;
 using Vertigo2.Player;
 using Valve.VR;
 
+[assembly: MelonInfo(typeof(Vertigo2_bhaptics.Vertigo2_bhaptics), "Vertigo2_bhaptics", "1.1.2", "Florian Fahrenberger")]
+[assembly: MelonGame("Zulubo Productions", "vertigo2")]
+
 namespace Vertigo2_bhaptics
 {
     public class Vertigo2_bhaptics : MelonMod
     {
-        public static TactsuitVR tactsuitVr;
+        public static TactsuitVR tactsuitVr = null!;
         private static int rightHand = ((int)SteamVR_Input_Sources.RightHand);
         private static bool rightFootLast = true;
 
