@@ -160,6 +160,19 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(HammerSickle), "Blade_OnImpact", new Type[] { typeof(Collider), typeof(Vector3), typeof(Vector3), typeof(Vector3), typeof(float) })]
+        public class bhaptics_HammerSickleCollide
+        {
+            [HarmonyPostfix]
+            public static void Postfix(HammerSickle __instance, float normalizedSpeed, bool ___energyOn)
+            {
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                float intensity = normalizedSpeed;
+                if (!___energyOn) intensity /= 2.0f;
+                tactsuitVr.SwordRecoil(isRightHand, intensity);
+            }
+        }
+
         [HarmonyPatch(typeof(Blafaladaciousnesticles), "OnImpact", new Type[] { typeof(Collider), typeof(Vector3), typeof(Vector3), typeof(Vector3), typeof(float) })]
         public class bhaptics_SwordFeedback
         {
