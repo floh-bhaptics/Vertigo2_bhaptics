@@ -1,25 +1,38 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-	<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-	<AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <OutputPath>F:\SteamLibrary\steamapps\common\Vertigo 2\Mods</OutputPath>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6B16839A-D850-4BA7-B356-F394EA4A1161}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Vertigo2_bhaptics</RootNamespace>
+    <AssemblyName>Vertigo2_bhaptics</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>F:\SteamLibrary\steamapps\common\Vertigo 2\Mods\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>none</DebugType>
-  </PropertyGroup>
-
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\net6\0Harmony.dll</HintPath>
+      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\net35\0Harmony.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
@@ -27,17 +40,25 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="bHapticsLib">
-      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\net6\bHapticsLib.dll</HintPath>
+      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\net35\bHapticsLib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="MelonLoader">
-      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\net6\MelonLoader.dll</HintPath>
+      <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\MelonLoader\net35\MelonLoader.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="SteamVR">
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\vertigo2_Data\Managed\SteamVR.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>F:\SteamLibrary\steamapps\common\Vertigo 2\vertigo2_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -47,10 +68,12 @@
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="XCOPY &quot;$(ProjectDir)bHaptics\&quot; &quot;$(TargetDir)bHaptics\&quot; /S /Y" />
-  </Target>
-
-
+  <ItemGroup>
+    <Compile Include="MyBhapticsTactsuit.cs" />
+    <Compile Include="Vertigo2_bhaptics.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>XCOPY "$(SolutionDir)bHaptics" "$(TargetDir)\bHaptics\" /S /Y</PostBuildEvent>
+  </PropertyGroup>
 </Project>

@@ -22,7 +22,7 @@ namespace Vertigo2_bhaptics
 {
     public class Vertigo2_bhaptics : MelonMod
     {
-        public static TactsuitVR tactsuitVr = null!;
+        public static TactsuitVR tactsuitVr;
         private static int rightHand = ((int)SteamVR_Input_Sources.RightHand);
         private static bool rightFootLast = true;
 
