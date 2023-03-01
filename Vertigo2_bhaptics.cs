@@ -465,7 +465,7 @@ namespace Vertigo2_bhaptics
                 float max_dist = 150.0f;
                 if (distance > max_dist) return;
                 float intensityScale = 1f;
-                if (__instance.maxForce > 0f) Math.Min(intensityScale = __instance.maxForce / 20f, 1.0f);
+                if (__instance.maxForce > 0f) intensityScale = Math.Min(__instance.maxForce / 20f, 1.0f);
                 /*
                 tactsuitVr.LOG("Explosion: " + __instance.maxDamage.ToString());
                 tactsuitVr.LOG("Can hurt: " + __instance.canHurtSourceEntity.ToString());
