@@ -15,7 +15,7 @@ using Vertigo2;
 using Vertigo2.Player;
 using Valve.VR;
 
-[assembly: MelonInfo(typeof(Vertigo2_bhaptics.Vertigo2_bhaptics), "Vertigo2_bhaptics", "1.1.2", "Florian Fahrenberger")]
+[assembly: MelonInfo(typeof(Vertigo2_bhaptics.Vertigo2_bhaptics), "Vertigo2_bhaptics", "1.1.3", "Florian Fahrenberger")]
 [assembly: MelonGame("Zulubo Productions", "vertigo2")]
 
 namespace Vertigo2_bhaptics
