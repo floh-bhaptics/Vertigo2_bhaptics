@@ -459,13 +459,24 @@ namespace Vertigo2_bhaptics
             [HarmonyPostfix]
             public static void Postfix(Explosion __instance)
             {
-                //tactsuitVr.LOG("Explosion: " + __instance.maxDamage.ToString());
                 if ((__instance.maxDamage == 0.0f) && (!__instance.applyScreenShake)) return;
                 if (tactsuitVr.IsPlaying("ExplosionUp")) return;
                 float distance = (__instance.transform.position - Vertigo2.AI.AIManager.world.player.position).magnitude;
                 float max_dist = 150.0f;
                 if (distance > max_dist) return;
-                float intensity = ((max_dist - distance)/max_dist) * ((max_dist - distance) / max_dist);
+                float intensityScale = 1f;
+                if (__instance.maxForce > 0f) Math.Min(intensityScale = __instance.maxForce / 20f, 1.0f);
+                /*
+                tactsuitVr.LOG("Explosion: " + __instance.maxDamage.ToString());
+                tactsuitVr.LOG("Can hurt: " + __instance.canHurtSourceEntity.ToString());
+                tactsuitVr.LOG("maxForce: " + __instance.maxForce.ToString());
+                tactsuitVr.LOG("maxRadius: " + __instance.maxRadius.ToString());
+                tactsuitVr.LOG("maxShockwave: " + __instance.maxShockwaveMass.ToString());
+                tactsuitVr.LOG("damageScale: " + __instance.playerDamageScale.ToString());
+                tactsuitVr.LOG("screenShake: " + __instance.screenShakeMagnitude.ToString());
+                tactsuitVr.LOG(" ");
+                */
+                float intensity = ((max_dist - distance)/max_dist) * ((max_dist - distance) / max_dist) * intensityScale;
                 if (intensity > 0.0f) tactsuitVr.PlaybackHaptics("ExplosionUp", intensity);
             }
         }
