@@ -173,6 +173,17 @@ namespace Vertigo2_bhaptics
             }
         }
 
+        [HarmonyPatch(typeof(HammerSickle), "ThrowProjectile", new Type[] {  })]
+        public class bhaptics_HammerSickleShoot
+        {
+            [HarmonyPostfix]
+            public static void Postfix(HammerSickle __instance)
+            {
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                tactsuitVr.ThrowRecoil(isRightHand);
+            }
+        }
+
         [HarmonyPatch(typeof(Blafaladaciousnesticles), "OnImpact", new Type[] { typeof(Collider), typeof(Vector3), typeof(Vector3), typeof(Vector3), typeof(float) })]
         public class bhaptics_SwordFeedback
         {

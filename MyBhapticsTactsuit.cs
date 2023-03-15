@@ -204,6 +204,18 @@ namespace MyBhapticsTactsuit
             bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest, scaleOption, rotationFront);
         }
 
+        public void ThrowRecoil(bool isRightHand)
+        {
+            string postfix = "_L";
+            if (isRightHand) { postfix = "_R"; }
+            string keyVest = "CastVest" + postfix;
+            string keyArm = "CastArm" + postfix;
+            string keyHands = "CastHand" + postfix;
+            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest);
+            bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm);
+            bHapticsLib.bHapticsManager.PlayRegistered(keyHands, keyHands);
+        }
+
         public bool isMinigunPlaying()
         {
             if (IsPlaying("Minigun_L")) { return true; }
