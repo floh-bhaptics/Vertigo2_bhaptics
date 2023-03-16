@@ -3,29 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
+using Bhaptics.SDK2;
 using MelonLoader;
 
 namespace MyBhapticsTactsuit
 {
     public class TactsuitVR
     {
-        public bool suitDisabled = true;
-        public bool systemInitialized = false;
         private static ManualResetEvent HeartBeat_mrse = new ManualResetEvent(false);
         private static ManualResetEvent Water_mrse = new ManualResetEvent(false);
         private static ManualResetEvent Choking_mrse = new ManualResetEvent(false);
-        public Dictionary<String, FileInfo> FeedbackMap = new Dictionary<String, FileInfo>();
-
-        private static bHapticsLib.RotationOption defaultRotationOption = new bHapticsLib.RotationOption(0.0f, 0.0f);
 
         public void HeartBeatFunc()
         {
             while (true)
             {
                 HeartBeat_mrse.WaitOne();
-                bHapticsLib.bHapticsManager.PlayRegistered("HeartBeat");
                 Thread.Sleep(1000);
+                BhapticsSDK2.Play("heartbeat");
             }
         }
 
@@ -34,7 +29,7 @@ namespace MyBhapticsTactsuit
             while (true)
             {
                 Water_mrse.WaitOne();
-                bHapticsLib.bHapticsManager.PlayRegistered("WaterSlushing");
+                BhapticsSDK2.Play("waterslushing".ToLower());
                 Thread.Sleep(5050);
             }
         }
@@ -44,20 +39,21 @@ namespace MyBhapticsTactsuit
             while (true)
             {
                 Choking_mrse.WaitOne();
-                bHapticsLib.bHapticsManager.PlayRegistered("Choking");
+                BhapticsSDK2.Play("Choking".ToLower());
                 Thread.Sleep(1050);
             }
         }
 
         public TactsuitVR()
         {
-            LOG("Initializing suit");
-            if (!bHaptics.WasError)
-            {
-                suitDisabled = false;
-            }
-            RegisterAllTactFiles();
             LOG("Starting HeartBeat and NeckTingle thread...");
+            var res = BhapticsSDK2.Initialize("Gs308257f0HC5YfQgJ7L", "Cgt7qCjhvv38Wd5oJOJD", "");
+
+            if (res > 0)
+            {
+                LOG("Failed to Bhaptics Initialization...");
+            }
+            
             Thread HeartBeatThread = new Thread(HeartBeatFunc);
             HeartBeatThread.Start();
             Thread WaterThread = new Thread(WaterFunc);
@@ -71,47 +67,10 @@ namespace MyBhapticsTactsuit
             MelonLogger.Msg(logStr);
         }
 
-
-
-        void RegisterAllTactFiles()
-        {
-            string configPath = Directory.GetCurrentDirectory() + "\\Mods\\bHaptics";
-            DirectoryInfo d = new DirectoryInfo(configPath);
-            FileInfo[] Files = d.GetFiles("*.tact", SearchOption.AllDirectories);
-            for (int i = 0; i < Files.Length; i++)
-            {
-                string filename = Files[i].Name;
-                string fullName = Files[i].FullName;
-                string prefix = Path.GetFileNameWithoutExtension(filename);
-                // LOG("Trying to register: " + prefix + " " + fullName);
-                if (filename == "." || filename == "..")
-                    continue;
-                string tactFileStr = File.ReadAllText(fullName);
-                try
-                {
-                    bHapticsLib.bHapticsManager.RegisterPatternFromJson(prefix, tactFileStr);
-                    LOG("Pattern registered: " + prefix);
-                }
-                catch (Exception e) { LOG(e.ToString()); }
-
-                FeedbackMap.Add(prefix, Files[i]);
-            }
-            systemInitialized = true;
-            //PlaybackHaptics("HeartBeat");
-        }
-
         public void PlaybackHaptics(String key, float intensity = 1.0f, float duration = 1.0f)
         {
-            if (FeedbackMap.ContainsKey(key))
-            {
-                bHapticsLib.ScaleOption scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-                bHapticsLib.bHapticsManager.PlayRegistered(key, key, scaleOption, defaultRotationOption);
-                // LOG("Playing back: " + key);
-            }
-            else
-            {
-                LOG("Feedback not registered: " + key);
-            }
+            BhapticsSDK2.Play(key.ToLower(), intensity, duration, 0, 0);
+            // LOG("Playing back: " + key);
         }
 
         public void PlayBackHit(String key, float xzAngle, float yShift)
@@ -119,16 +78,13 @@ namespace MyBhapticsTactsuit
             // two parameters can be given to the pattern to move it on the vest:
             // 1. An angle in degrees [0, 360] to turn the pattern to the left
             // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
-            bHapticsLib.ScaleOption scaleOption = new bHapticsLib.ScaleOption(1f, 1f);
-            bHapticsLib.RotationOption rotationOption = new bHapticsLib.RotationOption(xzAngle, yShift);
-            bHapticsLib.bHapticsManager.PlayRegistered(key, key, scaleOption, rotationOption);
+            BhapticsSDK2.Play(key.ToLower(), 1f, 1f, xzAngle, yShift);
         }
 
         public void GunRecoil(bool isRightHand, float intensity = 1.0f, bool twoHanded = false )
         {
             float duration = 1.0f;
-            var scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-            var rotationFront = new bHapticsLib.RotationOption(0f, 0f);
+            
             string postfix = "_L";
             string otherPostfix = "_R";
             if (isRightHand) { postfix = "_R"; otherPostfix = "_L"; }
@@ -137,21 +93,20 @@ namespace MyBhapticsTactsuit
             string keyHands = "RecoilHands" + postfix;
             string keyArmOther = "Recoil" + otherPostfix;
             string keyHandsOther = "RecoilHands" + otherPostfix;
-            bHapticsLib.bHapticsManager.PlayRegistered(keyHands, keyHands, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest, scaleOption, rotationFront);
+            
+            BhapticsSDK2.Play(keyHands.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
             if (twoHanded)
             {
-                bHapticsLib.bHapticsManager.PlayRegistered(keyHandsOther, keyHandsOther, scaleOption, rotationFront);
-                bHapticsLib.bHapticsManager.PlayRegistered(keyArmOther, keyArmOther, scaleOption, rotationFront);
+                BhapticsSDK2.Play(keyHandsOther.ToLower(), intensity, duration, 0f, 0f);
+                BhapticsSDK2.Play(keyArmOther.ToLower(), intensity, duration, 0f, 0f);
             }
         }
 
         public void MeatNailerRecoil(bool isRightHand, float intensity = 1.0f, bool twoHanded = false)
         {
             float duration = 1.0f;
-            var scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-            var rotationFront = new bHapticsLib.RotationOption(0f, 0f);
             string postfix = "_L";
             string otherPostfix = "_R";
             if (isRightHand) { postfix = "_R"; otherPostfix = "_L"; }
@@ -160,60 +115,63 @@ namespace MyBhapticsTactsuit
             string keyHands = "RecoilHands" + postfix;
             string keyArmOther = "Recoil" + otherPostfix;
             string keyHandsOther = "RecoilHands" + otherPostfix;
-            bHapticsLib.bHapticsManager.PlayRegistered(keyHands, keyHands, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest, scaleOption, rotationFront);
+            
+            BhapticsSDK2.Play(keyHands.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
             if (twoHanded)
             {
-                bHapticsLib.bHapticsManager.PlayRegistered(keyHandsOther, keyHandsOther, scaleOption, rotationFront);
-                bHapticsLib.bHapticsManager.PlayRegistered(keyArmOther, keyArmOther, scaleOption, rotationFront);
+                BhapticsSDK2.Play(keyHandsOther.ToLower(), intensity, duration, 0f, 0f);
+                BhapticsSDK2.Play(keyArmOther.ToLower(), intensity, duration, 0f, 0f);
             }
         }
 
         public void EnlightenRecoil(bool isRightHand, float intensity = 1.0f, bool twoHanded = false)
         {
             float duration = 1.0f;
-            var scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-            var rotationFront = new bHapticsLib.RotationOption(0f, 0f);
             string postfix = "_L";
             string otherPostfix = "_R";
             if (isRightHand) { postfix = "_R"; otherPostfix = "_L"; }
             string keyArm = "EnlightenGunArm" + postfix;
             string keyVest = "EnlightenGunVest" + postfix;
             string keyArmOther = "EnlightenGunArm" + otherPostfix;
-            bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest, scaleOption, rotationFront);
+            
+            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
             if (twoHanded)
             {
-                bHapticsLib.bHapticsManager.PlayRegistered(keyArmOther, keyArmOther, scaleOption, rotationFront);
+                BhapticsSDK2.Play(keyArmOther.ToLower(), intensity, duration, 0f, 0f);
             }
+            
         }
 
         public void SwordRecoil(bool isRightHand, float intensity = 1.0f)
         {
             float duration = 1.0f;
-            var scaleOption = new bHapticsLib.ScaleOption(intensity, duration);
-            var rotationFront = new bHapticsLib.RotationOption(0f, 0f);
             string postfix = "_L";
             if (isRightHand) { postfix = "_R"; }
             string keyArm = "Sword" + postfix;
             string keyVest = "SwordVest" + postfix;
             string keyHands = "RecoilHands" + postfix;
-            bHapticsLib.bHapticsManager.PlayRegistered(keyHands, keyHands, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm, scaleOption, rotationFront);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest, scaleOption, rotationFront);
+            
+            BhapticsSDK2.Play(keyHands.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
         }
 
         public void ThrowRecoil(bool isRightHand)
         {
+            float intensity = 1f;
+            float duration = 1f;
             string postfix = "_L";
             if (isRightHand) { postfix = "_R"; }
             string keyVest = "CastVest" + postfix;
             string keyArm = "CastArm" + postfix;
             string keyHands = "CastHand" + postfix;
-            bHapticsLib.bHapticsManager.PlayRegistered(keyVest, keyVest);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyArm, keyArm);
-            bHapticsLib.bHapticsManager.PlayRegistered(keyHands, keyHands);
+            
+            BhapticsSDK2.Play(keyHands.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
+            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
         }
 
         public bool isMinigunPlaying()
@@ -255,7 +213,7 @@ namespace MyBhapticsTactsuit
 
         public void HeadShot(float hitAngle)
         {
-            if (bHapticsLib.bHapticsManager.IsDeviceConnected(bHapticsLib.PositionID.Head))
+            if (BhapticsSDK2.IsDeviceConnected(PositionType.Head))
             {
                 if ((hitAngle < 45f) | (hitAngle > 315f)) { PlaybackHaptics("Headshot_F"); }
                 if ((hitAngle > 45f) && (hitAngle < 135f)) { PlaybackHaptics("Headshot_L"); }
@@ -267,7 +225,7 @@ namespace MyBhapticsTactsuit
 
         public void FootStep(bool isRightFoot)
         {
-            if (!bHapticsLib.bHapticsManager.IsDeviceConnected(bHapticsLib.PositionID.FootLeft)) { return; }
+            if (!BhapticsSDK2.IsDeviceConnected(PositionType.FootL)) { return; }
             string postfix = "_L";
             if (isRightFoot) { postfix = "_R"; }
             string key = "FootStep" + postfix;
@@ -307,21 +265,18 @@ namespace MyBhapticsTactsuit
 
         public bool IsPlaying(String effect)
         {
-            return bHapticsLib.bHapticsManager.IsPlaying(effect);
+            return BhapticsSDK2.IsPlaying(effect.ToLower());
         }
 
         public void StopHapticFeedback(String effect)
         {
-            bHapticsLib.bHapticsManager.StopPlaying(effect);
+            BhapticsSDK2.Stop(effect.ToLower());
         }
 
         public void StopAllHapticFeedback()
         {
             StopThreads();
-            foreach (String key in FeedbackMap.Keys)
-            {
-                StopHapticFeedback(key);
-            }
+            BhapticsSDK2.StopAll();
         }
 
         public void StopThreads()
