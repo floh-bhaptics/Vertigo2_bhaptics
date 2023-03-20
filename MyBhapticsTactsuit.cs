@@ -11,8 +11,6 @@ namespace MyBhapticsTactsuit
     public class TactsuitVR
     {
         private static ManualResetEvent HeartBeat_mrse = new ManualResetEvent(false);
-        private static ManualResetEvent Water_mrse = new ManualResetEvent(false);
-        private static ManualResetEvent Choking_mrse = new ManualResetEvent(false);
 
         public void HeartBeatFunc()
         {
@@ -24,26 +22,6 @@ namespace MyBhapticsTactsuit
             }
         }
 
-        public void WaterFunc()
-        {
-            while (true)
-            {
-                Water_mrse.WaitOne();
-                BhapticsSDK2.Play("waterslushing".ToLower());
-                Thread.Sleep(5050);
-            }
-        }
-
-        public void ChokingFunc()
-        {
-            while (true)
-            {
-                Choking_mrse.WaitOne();
-                BhapticsSDK2.Play("Choking".ToLower());
-                Thread.Sleep(1050);
-            }
-        }
-
         public TactsuitVR()
         {
             LOG("Starting HeartBeat and NeckTingle thread...");
@@ -51,15 +29,11 @@ namespace MyBhapticsTactsuit
 
             if (res > 0)
             {
-                LOG("Failed to Bhaptics Initialization...");
+                LOG("Failed to do bhaptics initialization...");
             }
             
             Thread HeartBeatThread = new Thread(HeartBeatFunc);
             HeartBeatThread.Start();
-            Thread WaterThread = new Thread(WaterFunc);
-            WaterThread.Start();
-            Thread ChokingThread = new Thread(ChokingFunc);
-            ChokingThread.Start();
         }
 
         public void LOG(string logStr)
@@ -183,34 +157,6 @@ namespace MyBhapticsTactsuit
             return false;
         }
 
-        public void FireMinigun(bool isRightHand, bool twoHanded)
-        {
-            if (isMinigunPlaying()) { return; }
-
-            string postfix = "";
-            if (twoHanded) { postfix += "Dual"; }
-            if (isRightHand) { postfix += "_R"; }
-            else { postfix += "_L"; }
-            string key = "Minigun" + postfix;
-            string keyVest = "MinigunVest" + postfix;
-            string keyHands = "RecoilHands" + postfix;
-            PlaybackHaptics(key);
-            PlaybackHaptics(keyVest);
-            PlaybackHaptics(keyHands);
-        }
-
-        public void StopMinigun(bool isRightHand, bool twoHanded)
-        {
-            string postfix = "";
-            if (twoHanded) { postfix += "Dual"; }
-            if (isRightHand) { postfix += "_R"; }
-            else { postfix += "_L"; }
-            string key = "Minigun" + postfix;
-            string keyVest = "MinigunVest" + postfix;
-            StopHapticFeedback(key);
-            StopHapticFeedback(keyVest);
-        }
-
         public void HeadShot(float hitAngle)
         {
             if (BhapticsSDK2.IsDeviceConnected(PositionType.Head))
@@ -242,27 +188,6 @@ namespace MyBhapticsTactsuit
             HeartBeat_mrse.Reset();
         }
 
-        public void StartWater()
-        {
-            Water_mrse.Set();
-        }
-
-        public void StopWater()
-        {
-            Water_mrse.Reset();
-        }
-
-        public void StartChoking()
-        {
-            Choking_mrse.Set();
-        }
-
-        public void StopChoking()
-        {
-            Choking_mrse.Reset();
-            StopHapticFeedback("TeleportOpened");
-        }
-
         public bool IsPlaying(String effect)
         {
             return BhapticsSDK2.IsPlaying(effect.ToLower());
@@ -282,8 +207,6 @@ namespace MyBhapticsTactsuit
         public void StopThreads()
         {
             StopHeartBeat();
-            StopWater();
-            StopChoking();
         }
 
 

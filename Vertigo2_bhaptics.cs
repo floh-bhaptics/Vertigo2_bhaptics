@@ -222,6 +222,8 @@ namespace Vertigo2_bhaptics
             Vector3 playerDir = PlayerRotation.eulerAngles;
             // We only want rotation correction in y direction (left-right), top-bottom and yaw we can leave
             Vector3 flattenedHit = new Vector3(hitPosition.x, 0f, hitPosition.z);
+            // Yes, this can be done with Unity functions, but I got weird and wrong results,
+            // so I am doing the cross product manually, basically
             float earlyhitAngle = Vector3.Angle(flattenedHit, patternOrigin);
             Vector3 earlycrossProduct = Vector3.Cross(flattenedHit, patternOrigin);
             if (earlycrossProduct.y > 0f) { earlyhitAngle *= -1f; }
