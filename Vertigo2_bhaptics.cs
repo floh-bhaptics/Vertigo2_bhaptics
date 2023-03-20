@@ -156,7 +156,7 @@ namespace Vertigo2_bhaptics
                 bool isRightHand = (((int)__instance.inputSource) == rightHand);
                 bool twoHanded = (__instance.heldEquippable.otherHandHolding);
                 float intensity = 0.6f;
-                tactsuitVr.GunRecoil(isRightHand, intensity, twoHanded);
+                tactsuitVr.EnlightenRecoil(isRightHand, intensity, twoHanded);
             }
         }
 
