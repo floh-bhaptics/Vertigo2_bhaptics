@@ -25,6 +25,7 @@ namespace Vertigo2_bhaptics
         public static TactsuitVR tactsuitVr;
         private static int rightHand = ((int)SteamVR_Input_Sources.RightHand);
         private static bool rightFootLast = true;
+        private static bool isRightHanded = true;
 
         public override void OnInitializeMelon()
         {
@@ -208,6 +209,40 @@ namespace Vertigo2_bhaptics
                 tactsuitVr.SwordRecoil(isRightHand, intensity);
             }
         }
+
+        [HarmonyPatch(typeof(AmmoBelt), "TakeAmmo", new Type[] {  })]
+        public class bhaptics_TakeAmmo
+        {
+            [HarmonyPostfix]
+            public static void Postfix(AmmoBelt __instance)
+            {
+                tactsuitVr.GrabAmmo(isRightHanded);
+            }
+        }
+
+        [HarmonyPatch(typeof(VertigoOptions), "LoadFromDisk", new Type[] { })]
+        public class bhaptics_LoadOptions
+        {
+            [HarmonyPostfix]
+            public static void Postfix(VertigoOptions __instance)
+            {
+                isRightHanded = !__instance.input_leftHanded;
+            }
+        }
+
+        [HarmonyPatch(typeof(Gun), "TryLoad", new Type[] { typeof(Ammo) })]
+        public class bhaptics_LoadGun
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Gun __instance, Ammo ammo)
+            {
+                if ((!__instance.reloadReady) || !((UnityEngine.Object)ammo != (UnityEngine.Object)null) || !(ammo.ammoTag == __instance.ammoName)) return;
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                tactsuitVr.Reload(isRightHand);
+            }
+        }
+
+
 
         #endregion
 

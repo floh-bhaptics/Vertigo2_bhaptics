@@ -160,6 +160,18 @@ namespace MyBhapticsTactsuit
             else { PlayBackHit("BulletHit", hitAngle, 0.5f); }
         }
 
+        public void GrabAmmo(bool isRightHanded)
+        {
+            if (isRightHanded) PlaybackHaptics("GrabAmmo_L");
+            else PlaybackHaptics("GrabAmmo_R");
+        }
+
+        public void Reload(bool isRight)
+        {
+            if (isRight) PlaybackHaptics("Reload_R");
+            else PlaybackHaptics("Reload_L");
+        }
+
         public void FootStep(bool isRightFoot)
         {
             if (!BhapticsSDK2.IsDeviceConnected(PositionType.FootL)) { return; }
