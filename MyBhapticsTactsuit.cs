@@ -41,9 +41,9 @@ namespace MyBhapticsTactsuit
             MelonLogger.Msg(logStr);
         }
 
-        public void PlaybackHaptics(String key, float intensity = 1.0f, float duration = 1.0f)
+        public void PlaybackHaptics(String key, float intensity = 1.0f, float duration = 1.0f, float xzAngle = 0f, float yShift = 0f)
         {
-            BhapticsSDK2.Play(key.ToLower(), intensity, duration, 0, 0);
+            BhapticsSDK2.Play(key.ToLower(), intensity, duration, xzAngle, yShift);
             // LOG("Playing back: " + key);
         }
 
@@ -52,7 +52,7 @@ namespace MyBhapticsTactsuit
             // two parameters can be given to the pattern to move it on the vest:
             // 1. An angle in degrees [0, 360] to turn the pattern to the left
             // 2. A shift [-0.5, 0.5] in y-direction (up and down) to move it up or down
-            BhapticsSDK2.Play(key.ToLower(), 1f, 1f, xzAngle, yShift);
+            PlaybackHaptics(key.ToLower(), 1f, 1f, xzAngle, yShift);
         }
 
         public void GunRecoil(bool isRightHand, float intensity = 1.0f, bool twoHanded = false )
@@ -68,13 +68,13 @@ namespace MyBhapticsTactsuit
             string keyArmOther = "Recoil" + otherPostfix;
             string keyHandsOther = "RecoilHands" + otherPostfix;
             
-            BhapticsSDK2.Play(keyHands.ToLower(), intensity, duration, 0f, 0f);
-            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
-            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
+            PlaybackHaptics(keyHands, intensity, duration);
+            PlaybackHaptics(keyArm, intensity, duration);
+            PlaybackHaptics(keyVest, intensity, duration);
             if (twoHanded)
             {
-                BhapticsSDK2.Play(keyHandsOther.ToLower(), intensity, duration, 0f, 0f);
-                BhapticsSDK2.Play(keyArmOther.ToLower(), intensity, duration, 0f, 0f);
+                PlaybackHaptics(keyHandsOther, intensity, duration);
+                PlaybackHaptics(keyArmOther, intensity, duration);
             }
         }
 
@@ -90,13 +90,13 @@ namespace MyBhapticsTactsuit
             string keyArmOther = "Recoil" + otherPostfix;
             string keyHandsOther = "RecoilHands" + otherPostfix;
             
-            BhapticsSDK2.Play(keyHands.ToLower(), intensity, duration, 0f, 0f);
-            BhapticsSDK2.Play(keyArm.ToLower(), intensity, duration, 0f, 0f);
-            BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
+            PlaybackHaptics(keyHands, intensity, duration);
+            PlaybackHaptics(keyArm, intensity, duration);
+            PlaybackHaptics(keyVest, intensity, duration);
             if (twoHanded)
             {
-                BhapticsSDK2.Play(keyHandsOther.ToLower(), intensity, duration, 0f, 0f);
-                BhapticsSDK2.Play(keyArmOther.ToLower(), intensity, duration, 0f, 0f);
+                PlaybackHaptics(keyHandsOther, intensity, duration);
+                PlaybackHaptics(keyArmOther, intensity, duration);
             }
         }
 
@@ -170,6 +170,12 @@ namespace MyBhapticsTactsuit
         {
             if (isRight) PlaybackHaptics("Reload_R");
             else PlaybackHaptics("Reload_L");
+        }
+
+        public void EjectMag(bool isRight)
+        {
+            if (isRight) PlaybackHaptics("EjectMag_R");
+            else PlaybackHaptics("EjectMag_L");
         }
 
         public void FootStep(bool isRightFoot)

@@ -220,25 +220,26 @@ namespace Vertigo2_bhaptics
             }
         }
 
-        [HarmonyPatch(typeof(VertigoOptions), "LoadFromDisk", new Type[] { })]
-        public class bhaptics_LoadOptions
-        {
-            [HarmonyPostfix]
-            public static void Postfix(VertigoOptions __instance)
-            {
-                isRightHanded = !__instance.input_leftHanded;
-            }
-        }
-
         [HarmonyPatch(typeof(Gun), "TryLoad", new Type[] { typeof(Ammo) })]
         public class bhaptics_LoadGun
         {
             [HarmonyPostfix]
-            public static void Postfix(Gun __instance, Ammo ammo)
+            public static void Postfix(Equippable __instance)
             {
-                if ((!__instance.reloadReady) || !((UnityEngine.Object)ammo != (UnityEngine.Object)null) || !(ammo.ammoTag == __instance.ammoName)) return;
+                if (!__instance.reloadReady) return;
                 bool isRightHand = (((int)__instance.inputSource) == rightHand);
                 tactsuitVr.Reload(isRightHand);
+            }
+        }
+
+        [HarmonyPatch(typeof(Ionizer), "EjectMag", new Type[] {  })]
+        public class bhaptics_EjectMag
+        {
+            [HarmonyPostfix]
+            public static void Postfix(Ionizer __instance)
+            {
+                bool isRightHand = (((int)__instance.inputSource) == rightHand);
+                tactsuitVr.EjectMag(isRightHand);
             }
         }
 
