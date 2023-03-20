@@ -148,15 +148,6 @@ namespace MyBhapticsTactsuit
             BhapticsSDK2.Play(keyVest.ToLower(), intensity, duration, 0f, 0f);
         }
 
-        public bool isMinigunPlaying()
-        {
-            if (IsPlaying("Minigun_L")) { return true; }
-            if (IsPlaying("Minigun_R")) { return true; }
-            if (IsPlaying("MinigunDual_L")) { return true; }
-            if (IsPlaying("MinigunDual_R")) { return true; }
-            return false;
-        }
-
         public void HeadShot(float hitAngle)
         {
             if (BhapticsSDK2.IsDeviceConnected(PositionType.Head))
