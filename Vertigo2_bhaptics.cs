@@ -215,26 +215,38 @@ namespace Vertigo2_bhaptics
 
         private static (float, float) getAngleAndShift(VertigoPlayer player, HitInfo hit)
         {
-            Vector3 patternOrigin = new Vector3(0f, 0f, 1f);
+            // bhaptics pattern starts in the front, then rotates to the left. 0° is front, 90° is left, 270° is right.
             // y is "up", z is "forward" in local coordinates
+            Vector3 patternOrigin = new Vector3(0f, 0f, 1f);
             Vector3 hitPosition = hit.hitPoint - player.position;
             Quaternion PlayerRotation = player.head.rotation;
             Vector3 playerDir = PlayerRotation.eulerAngles;
-            // We only want rotation correction in y direction (left-right), top-bottom and yaw we can leave
+            // get rid of the up/down component to analyze xz-rotation
             Vector3 flattenedHit = new Vector3(hitPosition.x, 0f, hitPosition.z);
-            // Yes, this can be done with Unity functions, but I got weird and wrong results,
-            // so I am doing the cross product manually, basically
-            float earlyhitAngle = Vector3.Angle(flattenedHit, patternOrigin);
-            Vector3 earlycrossProduct = Vector3.Cross(flattenedHit, patternOrigin);
-            if (earlycrossProduct.y > 0f) { earlyhitAngle *= -1f; }
-            float myRotation = earlyhitAngle - playerDir.y;
+            // get angle. .Net < 4.0 does not have a "SignedAngle" function...
+            float hitAngle = Vector3.Angle(flattenedHit, patternOrigin);
+            // check if cross product points up or down, to make signed angle myself
+            Vector3 crossProduct = Vector3.Cross(flattenedHit, patternOrigin);
+            if (crossProduct.y > 0f) { hitAngle *= -1f; }
+            // relative to player direction
+            float myRotation = hitAngle - playerDir.y;
+            // switch directions (bhaptics angles are in mathematically negative direction)
             myRotation *= -1f;
+            // convert signed angle into [0, 360] rotation
             if (myRotation < 0f) { myRotation = 360f + myRotation; }
 
+            // up/down shift is in y-direction
+            // in Vertigo 2, the torso Transform has y=0 at the neck,
+            // and the torso ends at roughly -0.5 (that's in meters)
+            // so cap the shift to [-0.5, 0]...
             float hitShift = hitPosition.y;
-            if (hitShift > 0.0f) { hitShift = 0.5f; }
-            else if (hitShift < -0.5f) { hitShift = -0.5f; }
-            else { hitShift = (hitShift + 0.25f) * 2.0f; }
+            float upperBound = 0.0f;
+            float lowerBound = -0.5f;
+            if (hitShift > upperBound) { hitShift = 0.5f; }
+            else if (hitShift < lowerBound) { hitShift = -0.5f; }
+            // ...and then spread/shift it to [-0.5, 0.5], which is how bhaptics expects it
+            else { hitShift = (hitShift - lowerBound) / (upperBound - lowerBound) - 0.5f; }
+
 
             return (myRotation, hitShift);
         }
